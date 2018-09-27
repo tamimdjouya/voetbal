@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h3>Voetbal</h3>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<!--<p id="testP">data</p>-->
+<!--<div></div>-->
+<!--<button type="button" id="showDataBtn" onclick="showData()">Change data</button>-->
+
+<script>
+        function postData() {
+            console.log("posting data...");
+
+            // Get values from html.
+            var id = $("#inputId").val();
+            var goal = $("#inputGoal").val();
+            var homeTeam = $("#inputHomeTeam").val();
+            var awayTeam = $("#inputAwayTeam").val();
+            var playerName = $("#inputPlayerName").val();
+
+            // Create JS object with data.
+            var newVoetbal = {
+                id : id,
+                goal : goal,
+                homeTeam : homeTeam,
+                awayTeam : awayTeam,
+                playerName : playerName
+            };
+            console.log(newVoetbal);
+
+            // Convert JS object to JSON.
+            var validJsonVoetbal = JSON.stringify(newVoetbal);
+            console.log(validJsonVoetbal);
+
+            // Post JSON to endpoint.
+            $.ajax({
+                url:"api/voetbal",
+                type:"post",
+                data: validJsonVoetbal,
+                contentType: "application/json",
+                success: function(result) {
+                    // On successful post, reload data to get the added one as well.
+                    console.log("success post data!");
+                    getData();
+                }
+            });
+        }
+
+        function getData() {
+            console.log("getting data...");
+
+            // Get the data from endpoint.
+            $.ajax({
+                url:"api/voetbal",
+                type:"get",
+                success: function(voetbal) {
+                    // On successful get, reload the datatable with new data.
+                    console.log("This is the data: " + voetbal);
+                    $('#voetbalTable').DataTable().clear();
+                    $('#voetbalTable').DataTable().rows.add(voetbal);
+                    $('#voetbalTable').DataTable().columns.adjust().draw();
+                }
+            });
+        }
+
+        $(document).ready(function () {
+        // Modal submit.
+            $("#newBookForm").on('submit', function(e) {
+                console.log("Submitted new voetbal form");
+
+                // Post the data from the modal.
+                postData();
+
+                // Reset modal to hide and no values.
+                $('#newBookModal').modal('hide');
+                $("#inputTitle").val("");
+                $("#inputAuthor").val("");
+            });
+
+         //load table with data format
+         $('#voetbalTable').DataTable({
+                columns: [
+                    { "data": "id" },
+                    { "data": "goal" },
+                    { "data": "homeTeam" },
+                    { "data": "awayTeam" },
+                    { "data": "playerName" }
+                ]
+            });
+            getData();
+
+        });
+</script>
+<!--<script>-->
+    <!--function showData() {-->
+    <!--console.log("HOllaaaa console log");-->
+    <!--document.getElementById("testP").innerHTML = "data changed.";-->
+    <!--}-->
+<!--</script>-->
+<!--<button id="showData">Show data</button>-->
+<!--<button type="button" id="showJsonData">Change data</button>-->
+<!--<script>-->
+    <!--$(document).ready(function(){-->
+    <!--$("#showData").click(function(){-->
+        <!--$.get("api/voetbal", function(data, status){-->
+            <!--alert("Data: " + data + "\nStatus: " + status);-->
+        <!--});-->
+    <!--});-->
+<!--});-->
+<!--</script>-->
+<!--<script>-->
+    <!--$(document).ready(function(){-->
+    <!--$("#showJsonData").click(function(){-->
+        <!--$.getJSON("api/voetbal", function(result){-->
+            <!--$.each(result, function(i, field){-->
+                <!--$("div").append(field.playerName + " ");-->
+            <!--});-->
+        <!--});-->
+    <!--});-->
+<!--});-->
+<!--</script>-->
+
+<!--<script>-->
+        <!--$.getJSON("api/voetbal",function (data) {-->
+                <!--var tr = data.report-->
+                <!--for (var i = 0; i < data.length; i++) {-->
+                    <!--tr = $('<tr/>');-->
+                    <!--tr.append("<td>" + data[i].id + "</td>");-->
+                    <!--tr.append("<td>" + data[i].playerName + "</td>");-->
+                    <!--tr.append("<td>" + data[i].goal + "</td>");-->
+                    <!--$('.table1').append(tr);-->
+                <!--}-->
+            <!--});-->
+    <!--</script>-->
+
+<!--<table id="table1" class="display">-->
+    <!--<tr>-->
+        <!--<th>ID</th>-->
+        <!--<th>Player name</th>-->
+        <!--<th>Goal</th>-->
+    <!--</tr>-->
+<!--</table>-->
+<!--<br>-->
+<!--<br>-->
+<table id="voetbalTable" class="display">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Goal</th>
+        <th>homeTeam</th>
+        <th>awayTeam</th>
+        <th>Player name</th>
+    </tr>
+    </thead>
+    <tbody>
+    <br>
+    <button type="button" data-toggle="modal" data-target="#newBookModal">new Voetbal</button><br>
+    <div class="container">
+
+
+        <!-- New Book Modal -->
+        <div id="newBookModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">New Voetbal</h4>
+                    </div>
+
+                    <div class="modal-body">
+
+                        <form data-toggle="validator" role="form" id="newBookForm" onsubmit="return false;">
+                            <div class="form-group">
+                                <label for="inputId" class="control-label">ID</label>
+                                <input type="text" class="form-control" id="inputId" data-error="DAT IS GEEN NAAM BOYO!" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="inputGoal" class="control-label">Goal?</label>
+                                <input type="text" class="form-control" id="inputGoal" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="inputHomeTeam" class="control-label">Home Team</label>
+                                <input type="text" class="form-control" id="inputHomeTeam" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="inputAwayTeam" class="control-label">Away Team</label>
+                                <input type="text" class="form-control" id="inputAwayTeam" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="inputPlayerName" class="control-label">Player name</label>
+                                <input type="text" class="form-control" id="inputPlayerName" required>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <button id="closeButton" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- End of new Book Modal -->
+    </div>
+    </tbody>
+</table>
+</body>
+</html>
